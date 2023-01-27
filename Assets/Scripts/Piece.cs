@@ -47,37 +47,47 @@ public class Piece : MonoBehaviour
     //reading input and updating the tiles
     private void Update()
     {
-        this.board.Clear(this);
-        this.lockTime += Time.deltaTime;
-
-        //rotation 
-        if (Input.GetKeyDown(KeyCode.Q)){
-            Rotate(-1);
-        }else if (Input.GetKeyDown(KeyCode.E)){
-            Rotate(1);
-        }
-
-        //moving left/right/down and hard drop
-        if (Input.GetKeyDown(KeyCode.A)){
-            Move(Vector2Int.left);
-        }else if (Input.GetKeyDown(KeyCode.D)){
-            Move(Vector2Int.right);
-        }
-
-        if (Input.GetKeyDown(KeyCode.S)){
-            Move(Vector2Int.down);
-        }
-
-        if (Input.GetKeyDown(KeyCode.KeypadEnter)){
-            HardDrop();
-        }
-        
-        if (Time.time >= this.stepTime)
+        if (GameManager.IsInputEnabled)
         {
-            Step();
-        }
-        this.board.Set(this);
+            this.board.Clear(this);
+            this.lockTime += Time.deltaTime;
 
+            //rotation 
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Rotate(-1);
+            }
+            else if (Input.GetKeyDown(KeyCode.E))
+            {
+                Rotate(1);
+            }
+
+            //moving left/right/down and hard drop
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                Move(Vector2Int.left);
+            }
+            else if (Input.GetKeyDown(KeyCode.D))
+            {
+                Move(Vector2Int.right);
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Move(Vector2Int.down);
+            }
+
+            if (Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                HardDrop();
+            }
+
+            if (Time.time >= this.stepTime)
+            {
+                Step();
+            }
+            this.board.Set(this);
+        }
        
     }
 
@@ -133,7 +143,7 @@ public class Piece : MonoBehaviour
         {
             this.position = newPosition;
             //moveTime = Time.time + moveDelay;
-            this.lockTime = 0f; // reset
+            this.lockTime = 0f; // resets inactivae time
         }
 
         return valid;
