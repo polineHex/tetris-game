@@ -32,8 +32,6 @@ public class Board : MonoBehaviour
 
     private void Awake()
     { 
-        
-        
         this.tilemap = GetComponentInChildren<Tilemap>();
         this.activePiece = GetComponentInChildren<Piece>();
         this.isDead = this.player.GetComponent<PlayerMovement>().IsDead;
