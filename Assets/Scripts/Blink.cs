@@ -54,8 +54,6 @@ public class Blink : MonoBehaviour
             StartCoroutine(BlinkTile());
             blinking = true;
 
-            //blink = 1 - blink;
-            //materialTile.SetFloat("_Blink", blink);
         }
 
         if (Time.time > trackingPiece.TimeToDecideSum)
