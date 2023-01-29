@@ -1,6 +1,8 @@
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 public class Board : MonoBehaviour
@@ -9,8 +11,7 @@ public class Board : MonoBehaviour
     public GameObject tileCollider;
     public GameObject groundCollider;
     public GameObject player;
-    private bool isDead = false;
-
+   
 
     private List<GameObject> pieceCollider = new List<GameObject> ();
     private List<GameObject> boardCollider = new List<GameObject>();
@@ -31,12 +32,11 @@ public class Board : MonoBehaviour
 
 
     private void Awake()
-    { 
-        
-        
+    {
+        Time.timeScale = 1f;
         this.tilemap = GetComponentInChildren<Tilemap>();
         this.activePiece = GetComponentInChildren<Piece>();
-        this.isDead = this.player.GetComponent<PlayerMovement>().IsDead;
+       
         for (int i = 0; i < this.tetraminoes.Length; i++)   // for every piece we go and initialize it with cell data
         {
             this.tetraminoes[i].Initialize();
@@ -52,26 +52,15 @@ public class Board : MonoBehaviour
     }
 
 
-    public void SpawnPiece()
-    {
-        
-        int random = Random.Range(0, this.tetraminoes.Length);
-        TetraminoData data = this.tetraminoes[random];
-        this.activePiece.Initialize(this, spawnPosition, data);
-        
-        if (IsValidPosition(this.activePiece, this.spawnPosition)) {
-            Set(this.activePiece);
-        }
-        else {
-            GameOver();
-        }
-        
-        
-    }
+    #region Private methods
 
 
+    /// <summary>
+    /// Clears the line (row) on board and removes tiles and colliders, moves everything down to take the empty space
+    /// </summary>
+    /// <param name="row">the row that will be cleared</param>
 
-    public void ClearBoardCollider()
+    private void ClearBoardCollider()
     {
         for (int j = 0; j < boardCollider.Count; j++)
         {
@@ -81,7 +70,7 @@ public class Board : MonoBehaviour
         boardCollider.Clear();
     }
 
-    public void ClearPieceCollider()
+    private void ClearPieceCollider()
     {
         for (int j = 0; j < pieceCollider.Count; j++)
         {
@@ -89,66 +78,172 @@ public class Board : MonoBehaviour
         }
         pieceCollider.Clear();
     }
+
+
+    private void LineClear(int row)
+    {
+        RectInt bounds = this.Bounds;
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int tilePosition = new Vector3Int(col, row, 0);
+            this.tilemap.SetTile(tilePosition, null);
+        }
+
+        while (row < bounds.yMax)
+        {
+            for (int col = bounds.xMin; col < bounds.xMax; col++)
+            {
+                Vector3Int tilePosition2 = new Vector3Int(col, row + 1, 0);
+                TileBase above = this.tilemap.GetTile(tilePosition2);
+
+                tilePosition2 = new Vector3Int(col, row, 0);
+                this.tilemap.SetTile(tilePosition2, above);
+            }
+            row++;
+        }
+    }
+
+
+
+
+    /// <summary>
+    /// Checks if the row is full
+    /// </summary>
+    /// <param name="row">the row that;s being checked on board</param>
+    /// <returns></returns>
+    private bool IsLineFull(int row)
+    {
+
+        RectInt bounds = this.Bounds;
+        for (int col = bounds.xMin; col < bounds.xMax; col++)
+        {
+            Vector3Int tilePosition = new Vector3Int(col, row, 0);
+            if (!this.tilemap.HasTile(tilePosition))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    
+    
+    /// <summary>
+    /// Restarts the game in 2 sec, clears the board and the colliders
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator RestartGame()
+    {
+        yield return new WaitForSecondsRealtime(2f);
+        this.tilemap.ClearAllTiles();
+        ClearBoardCollider();
+        GameManager.IsInputEnabled = true;
+        // SceneManager.LoadScene("Tetris");
+    }
+
+    #endregion
+
+
+
+    #region Public methods
+    public void SpawnPiece()
+    {
+
+        int random = Random.Range(0, this.tetraminoes.Length);
+        TetraminoData data = this.tetraminoes[random];
+        this.activePiece.Initialize(this, spawnPosition, data);
+
+        if (IsValidPosition(this.activePiece, this.spawnPosition))
+        {
+            Set(this.activePiece);
+        }
+        else
+        {
+            GameOver();
+        }
+
+
+    }
+
+
+
     public void UpdateBoardCollider()
     {
 
         ClearPieceCollider();
         ClearBoardCollider();
-       RectInt bounds = this.Bounds;
-       
-        
+        RectInt bounds = this.Bounds;
+
+
         for (int col = bounds.xMin; col < bounds.xMax; col++)
-        { for (int row = bounds.yMin; row < bounds.yMax; row++)
-                {
+        {
+            for (int row = bounds.yMin; row < bounds.yMax; row++)
+            {
                 Vector3Int tilePosition = new Vector3Int(col, row, 0);
-                    if (this.tilemap.HasTile(tilePosition))
-                    {
-                        boardCollider.Add(Instantiate(groundCollider, tilePosition, Quaternion.identity));
-                    }
+                if (this.tilemap.HasTile(tilePosition))
+                {
+                    boardCollider.Add(Instantiate(groundCollider, tilePosition, Quaternion.identity));
                 }
             }
-   
+        }
+
     }
     public void Set(Piece piece)
     {
-        for(int i = 0; i < piece.cells.Length; i++)
+        for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
             this.tilemap.SetTile(tilePosition, piece.data.tile);
-          pieceCollider.Add(Instantiate(tileCollider, tilePosition, Quaternion.identity));
+            pieceCollider.Add(Instantiate(tileCollider, tilePosition, Quaternion.identity));
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="piece"></param>
 
     public void Clear(Piece piece)
     {
         for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + piece.position;
-            this.tilemap.SetTile(tilePosition,null);
+            this.tilemap.SetTile(tilePosition, null);
             ClearPieceCollider();
         }
     }
 
+
+    
+
+    /// <summary>
+    /// Checks if the piece can be place on the passed position.
+    /// If the piece is a ghost piece, it doesnt end the game when colliding with player
+    /// </summary>
+    /// <param name="piece"> piece to check</param>
+    /// <param name="position">place on board we are checking</param>
+    /// <param name="ghost">if the method is called by ghost piece</param>
+    /// <returns></returns>
     public bool IsValidPosition(Piece piece, Vector3Int position, bool ghost = false)
     {
 
         RectInt bounds = this.Bounds;
-        
+
 
         // The position is only valid if every cell is valid
         for (int i = 0; i < piece.cells.Length; i++)
         {
             Vector3Int tilePosition = piece.cells[i] + position;
-            
+
             Vector2 positionBoundsPlayer = new Vector2(tilePosition.x - 0.5f, tilePosition.y - 1.0f);
-            Vector2 sizeBoundsPlayer = new Vector2(2f,1f);
-            Rect boundsPlayer = new Rect(positionBoundsPlayer,sizeBoundsPlayer);
-            if(boundsPlayer.Contains((Vector2)player.transform.position))
+            Vector2 sizeBoundsPlayer = new Vector2(2f, 1f);
+            Rect boundsPlayer = new Rect(positionBoundsPlayer, sizeBoundsPlayer);
+            if (boundsPlayer.Contains((Vector2)player.transform.position))
             {
                 if (!ghost)
                 {
                     GameOver();
-                    player.GetComponent<PlayerMovement>().IsDead = true;
+
                 }
                 return false;
             }
@@ -170,67 +265,41 @@ public class Board : MonoBehaviour
         return true;
     }
 
-
+    /// <summary>
+    /// Checks all rows (lines) and calls function to clear tit if yes
+    /// </summary>
     public void ClearLines()
     {
         RectInt bounds = this.Bounds;
 
         int row = bounds.yMin;
 
-        while (row<bounds.yMax)
+        while (row < bounds.yMax)
         {
             if (IsLineFull(row))
             {
                 LineClear(row);
-            }else {
+            }
+            else
+            {
                 row++;
             }
         }
-        
-       
+
+
     }
 
-    
-    private void LineClear(int row)
+    /// <summary>
+    /// Stops the game by disable all input (and piece update function all together - no moving down) and restarting 
+    /// the game
+    /// </summary>
+    public void GameOver()
     {
-        RectInt bounds = this.Bounds;
-        for (int col = bounds.xMin; col < bounds.xMax; col++)
-        {
-            Vector3Int tilePosition = new Vector3Int(col, row, 0);
-            this.tilemap.SetTile(tilePosition, null);
-        }
+        GameManager.IsInputEnabled = false; //disable all inputs
+        StartCoroutine(RestartGame());
 
-        while (row < bounds.yMax)
-        {
-            for (int col = bounds.xMin; col < bounds.xMax; col++)
-            {
-                Vector3Int tilePosition2 = new Vector3Int(col, row+1, 0);
-                TileBase above = this.tilemap.GetTile(tilePosition2);
-                
-                tilePosition2 = new Vector3Int(col, row, 0);
-                this.tilemap.SetTile(tilePosition2, above);
-            }
-            row++;
-        }
-    }
-    
-    private bool IsLineFull(int row)
-    {
-
-        RectInt bounds = this.Bounds;
-        for (int col = bounds.xMin; col< bounds.xMax;  col++)
-        {
-            Vector3Int tilePosition = new Vector3Int(col,row, 0);
-            if (!this.tilemap.HasTile(tilePosition)) {
-                return false;
-            }
-        }
-        return true;
     }
 
-    private void GameOver()
-    {
-        this.tilemap.ClearAllTiles();
-        ClearBoardCollider();
-    }
+
+    #endregion
 }

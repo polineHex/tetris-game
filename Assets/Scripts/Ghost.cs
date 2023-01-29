@@ -56,21 +56,23 @@ public class Ghost : MonoBehaviour
         int bottom = -board.boardSize.y / 2 - 1;
 
         this.board.Clear(this.trackingPiece); // to avoid breaking out of check cause we check on the same spot
+        
 
-        for (int row = current; row >= bottom; row--)
-        {
-            position.y = row;
+         for (int row = current; row >= bottom; row--)
+         {
+             position.y = row;
 
-            if (this.board.IsValidPosition(trackingPiece, position, true))
-            {
-                this.position = position;
-            }
-            else
-            {
-                break;
-            }
-        }
+             if (this.board.IsValidPosition(trackingPiece, position, true))
+             {
+                 this.position = position;
+             }
+             else
+             {
+                 break;
+             }
+         }
 
+   
         this.board.Set(this.trackingPiece);// return the tile back
     }
 

@@ -44,7 +44,6 @@ GameObject:
   - component: {fileID: 6556074049833544582}
   - component: {fileID: 6556074049833544697}
   - component: {fileID: 6556074049833544580}
-  - component: {fileID: 6556074049833544583}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -150,8 +149,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.34}
-  m_Size: {x: 1, y: 2.48}
+  m_Offset: {x: 0, y: 0.12}
+  m_Size: {x: 1.21, y: 2.12}
   m_Direction: 0
 --- !u!50 &6556074049833544697
 Rigidbody2D:
@@ -189,22 +188,9 @@ MonoBehaviour:
   board: {fileID: 0}
   speed: 5
   groundCheckPosition: {fileID: 6556074049406716349}
-  damageCheck: {fileID: 0}
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
   tileLayer:
     serializedVersion: 2
     m_Bits: 256
---- !u!114 &6556074049833544583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6556074049833544701}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b031fc1d5c0dee84d9d3809e5688b7d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

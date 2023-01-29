@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
@@ -31,11 +32,11 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
     public LayerMask tileLayer;
 
-    public bool IsDead {
+    /*public bool IsDead {
         get { return isDead; }
         set { isDead = value; }
         }
-
+    */
     private void Awake()
     {
         myBody = GetComponent<Rigidbody2D>();
@@ -56,28 +57,23 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update() //called 60 times (every frame)
     {
-        if (isDead) this.gameObject.GetComponent<PlayerDamage>().EndGame(); ;
-        //raycast tests
 
-        Debug.DrawRay(groundCheckPosition.position, Vector2.down * 0.1f, Color.red);
-      
 
-        //vector2.down * 0.1f is the direction of the raycast(from the if below) times the
+        //Debug.DrawRay(groundCheckPosition.position, Vector2.down * 0.1f, Color.red);
+        if (GameManager.IsInputEnabled)
+        {
 
-        //length(0.1f) below.  this draws the ray in the correct direction and at the correct length.
-      
-       
-
-        CheckIfGrounded();
-        PlayerJump();
-
+            CheckIfGrounded();
+            PlayerJump();
+        }
 
 
     }
 
     private void FixedUpdate() //called every 2-3 frames - can edit this in project settings-time. Place for physics
     {
-        PlayerWalk();
+        if (GameManager.IsInputEnabled)
+               PlayerWalk();
     }
 
     void PlayerWalk()
@@ -205,17 +201,7 @@ public class PlayerMovement : MonoBehaviour
         
         return false;
     }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.CompareTag("Hit"))
-        {
-            print("hit collider");
-            this.gameObject.GetComponent<PlayerDamage>().EndGame();
-        }
-    }
    
-
-
 }//class
 
 
