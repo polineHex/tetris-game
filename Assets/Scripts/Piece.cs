@@ -19,17 +19,30 @@ public class Piece : MonoBehaviour
     public float playerLockDelay = 5f;
     public float timeToDecide = 6f; // time that the tile is sticking to the player
 
-    private bool followPlayer;
+    public bool followPlayer { get; private set; }
     private float timeToDecideSum;
     private float stepTime;
     private float lockTime;
-    
-    //private Material materialTile;
+
+
    
+    private float timeToDrop;
+    private bool blinkingPlayer;
+    private bool blinkingDrop;
+
+    //private Material materialTile;
+
+    public bool Blinking 
+     {
+        get { return blinkingPlayer || blinkingDrop; }
+     }
+
+
     public float TimeToDecideSum
     {
         get { return timeToDecideSum; }
     }
+    
 
 
     //filling the cells with data from Data script dictionary - basically filling out the form for the picked piece    
@@ -37,9 +50,7 @@ public class Piece : MonoBehaviour
     {
       this.board = board;
         
-      //materialTile = board.GetComponentInChildren<TilemapRenderer>().sharedMaterial;
-      //materialTile.SetFloat("_Glow", 2f);
-
+    
         this.position = position;
         this.data = data;
         this.rotationIndex = 0;
@@ -47,13 +58,18 @@ public class Piece : MonoBehaviour
         this.lockTime = 0f;
 
         timeToDecideSum =timeToDecide+Time.time; //if we start at 0 sec, we now have tile 0+timeToDecide to move the tile together with player
+        
         followPlayer = true;
+       
+        
+        blinkingPlayer= false;
+        blinkingDrop = false;
+
 
         this.gameObject.layer = LayerMask.NameToLayer("Ground");
 
-        
 
-    if (this.cells ==null){
+        if (this.cells ==null){
             this.cells = new Vector3Int[this.data.cells.Length];
         }
 
@@ -71,6 +87,9 @@ public class Piece : MonoBehaviour
     
     private void Update()
     {
+
+      
+
         if (GameManager.IsInputEnabled)
         {
             this.board.Clear(this);
@@ -89,6 +108,7 @@ public class Piece : MonoBehaviour
             //moving left/right - with player only
             if (followPlayer)
             {
+                
                 if (Input.GetKeyDown(KeyCode.A)) /// change the key event!!!!!!!!!!!!
                 {
                     Move(Vector2Int.left);
@@ -105,16 +125,45 @@ public class Piece : MonoBehaviour
                 Move(Vector2Int.down);
             }
 
+            
+            //when hard drop is pressed, we wait lockDelay time and blink before droping
+
             if (Input.GetKeyDown(KeyCode.KeypadEnter))
             {
-                HardDrop();
+
+                this.stepTime = Time.time + lockDelay+stepDelay;  //to make sure we dont step down automatically during this time
+
+                blinkingDrop = true;
+                followPlayer= false;
+                
+                timeToDrop = Time.time + lockDelay;
+                
+
             }
 
-            if(Time.time > timeToDecideSum)
+            //lock delay time is passed, we hard drop, there was an issue making it a courutine cause of some stack conflicts?
+            if (blinkingDrop && Time.time >= timeToDrop)
+             {
+
+                 HardDrop();
+                 blinkingDrop = false;
+
+             }
+            
+
+            //if we reach time for player to decide we blink to show that tile will lock soon
+
+            if (Time.time <= timeToDecideSum&&Time.time > timeToDecideSum-playerLockDelay)
+            {
+                blinkingPlayer = true;
+            }
+
+
+              if (Time.time > timeToDecideSum)
             {
                 followPlayer= false;
-                //materialTile.SetFloat("_Glow", 1f);
-               
+                blinkingPlayer = false;
+
             }
 
            
@@ -146,8 +195,11 @@ public class Piece : MonoBehaviour
         }
     }
 
-    private void HardDrop()
+ 
+     private void HardDrop()
     {
+       
+
         while (Move(Vector2Int.down))
         {
             continue;
@@ -155,7 +207,8 @@ public class Piece : MonoBehaviour
 
         Lock();
     }
-
+    
+   
     private void Lock()
     {
         board.Set(this);

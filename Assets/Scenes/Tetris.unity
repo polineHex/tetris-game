@@ -722,7 +722,6 @@ MonoBehaviour:
   tileCollider: {fileID: 1177809452621262956, guid: 0d29cbcac8c6a5b448ff8aac7391ef65, type: 3}
   groundCollider: {fileID: 1177809452621262956, guid: db794d537ef116346befb20be844be5e, type: 3}
   player: {fileID: 1791768927}
-  spawnPosition: {x: -1, y: 8, z: 0}
   boardSize: {x: 10, y: 20}
 --- !u!114 &896283691
 MonoBehaviour:
@@ -737,7 +736,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stepDelay: 1
-  lockDelay: 0.5
+  lockDelay: 1
   playerLockDelay: 1
   timeToDecide: 6
 --- !u!1 &1112685940

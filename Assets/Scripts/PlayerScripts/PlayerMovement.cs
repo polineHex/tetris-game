@@ -15,15 +15,14 @@ public class PlayerMovement : MonoBehaviour
     private Animator anim;
     private bool isGrounded;
     private bool jumped;
-    private bool isDead = false;
+  
 
     //private GameObject winText;
     private AudioSource audioManager;
 
-    private float cameraLeftEdge;
     private int jump;
     private int maxJumps = 2;
-    private float jumpPower = 12f;
+    private float jumpPower = 10f;
 
 
     public Transform groundCheckPosition;

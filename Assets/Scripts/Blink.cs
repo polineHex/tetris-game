@@ -14,9 +14,9 @@ public class Blink : MonoBehaviour
     public Vector3Int[] cells { get; private set; }
 
 
-    
-    private Material materialTile;
     private bool blinking;
+    private Material materialTile;
+  
     
    
     
@@ -28,9 +28,10 @@ public class Blink : MonoBehaviour
         materialTile = this.GetComponentInChildren<TilemapRenderer>().sharedMaterial;
 
         materialTile.SetFloat("_Glow", 2f);
+        materialTile.SetFloat("_Render", 1f);
         materialTile.SetFloat("_Blink", 0f);
-        blinking = false;
 
+        blinking = false;
 
     }
 
@@ -45,24 +46,47 @@ public class Blink : MonoBehaviour
         
         Copy();
 
-        materialTile.SetFloat("_Render", 1f);
+        if (!trackingPiece.Blinking)
+        {
+            blinking = false;
+        }
 
-        if ((!blinking) && Time.time < trackingPiece.TimeToDecideSum && Time.time > (trackingPiece.TimeToDecideSum - trackingPiece.playerLockDelay))
+
+        //if the blinking is passed from the piece to be true (either for player of for drop, we render and blink
+
+        if (trackingPiece.Blinking&&!blinking)
         {
 
             materialTile.SetFloat("_Render", 1f);
+            materialTile.SetFloat("_Glow", 1f);
             StartCoroutine(BlinkTile());
             blinking = true;
 
         }
 
-        if (Time.time > trackingPiece.TimeToDecideSum)
+        //if we are not following the player and not blinking we dont render
+        
+        if (!trackingPiece.Blinking&&!trackingPiece.followPlayer)
         {
             
             materialTile.SetFloat("_Blink", 0f);
             materialTile.SetFloat("_Render", 0f);
-            blinking = false;
+           
         }
+
+        //if we are not blinking but still following player, we glow
+
+        if (!trackingPiece.Blinking && trackingPiece.followPlayer)
+        {
+
+            materialTile.SetFloat("_Blink", 0f);
+            materialTile.SetFloat("_Render", 1f);
+            materialTile.SetFloat("_Glow", 2f);
+
+        }
+
+      
+
 
         Set();
     }
@@ -70,11 +94,11 @@ public class Blink : MonoBehaviour
 
     IEnumerator BlinkTile()
     {
+        
 
-        while ((Time.time < trackingPiece.TimeToDecideSum && Time.time > (trackingPiece.TimeToDecideSum - trackingPiece.playerLockDelay)))
-        {
+        while (trackingPiece.Blinking)
+       {
             yield return new WaitForSeconds(0.1f);
-
 
             materialTile.SetFloat("_Blink", 1f);
 
@@ -82,6 +106,7 @@ public class Blink : MonoBehaviour
 
             materialTile.SetFloat("_Blink", 0f);
         }
+
     }
 
 

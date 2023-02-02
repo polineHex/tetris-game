@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
@@ -18,7 +19,7 @@ public class Board : MonoBehaviour
     public Tilemap tilemap { get; private set; }
     public Piece activePiece { get; private set; }
    
-    public Vector3Int spawnPosition;
+    private Vector3Int spawnPosition;
     public Vector2Int boardSize = new Vector2Int(10, 20);
 
     public RectInt Bounds
@@ -33,6 +34,9 @@ public class Board : MonoBehaviour
 
     private void Awake()
     {
+        
+       
+      
         Time.timeScale = 1f;
         this.tilemap = GetComponentInChildren<Tilemap>();
         this.activePiece = GetComponentInChildren<Piece>();
@@ -149,9 +153,35 @@ public class Board : MonoBehaviour
     public void SpawnPiece()
     {
 
+        int xTempPlayer = Mathf.FloorToInt(player.transform.position.x);
+
+        //we push the position a bit to the side to fit the tile
+        
+        if (xTempPlayer < -3) xTempPlayer = -3;
+        else if (xTempPlayer >3) xTempPlayer = 3;
+
+        spawnPosition = new Vector3Int(xTempPlayer, 8, 0);
+        
+
         int random = Random.Range(0, this.tetraminoes.Length);
         TetraminoData data = this.tetraminoes[random];
         this.activePiece.Initialize(this, spawnPosition, data);
+
+        //for the long tile we have to push the position further
+        
+        switch (data.tetramino)
+        {
+            case Tetramino.I:
+                {
+                    if (xTempPlayer < -2) xTempPlayer = -2;
+                    else if (xTempPlayer > 2) xTempPlayer = 2;
+
+                    spawnPosition = new Vector3Int(xTempPlayer, 8, 0);
+                    this.activePiece.Initialize(this, spawnPosition, data);
+                }
+                break;
+        default: { break; }
+        }
 
         if (IsValidPosition(this.activePiece, this.spawnPosition))
         {
@@ -236,7 +266,7 @@ public class Board : MonoBehaviour
             Vector3Int tilePosition = piece.cells[i] + position;
 
             Vector2 positionBoundsPlayer = new Vector2(tilePosition.x - 0.5f, tilePosition.y - 1.0f);
-            Vector2 sizeBoundsPlayer = new Vector2(2f, 1f);
+            Vector2 sizeBoundsPlayer = new Vector2(1.5f, 1f); //size is 2 but i want the player to fit on one tile
             Rect boundsPlayer = new Rect(positionBoundsPlayer, sizeBoundsPlayer);
             if (boundsPlayer.Contains((Vector2)player.transform.position))
             {
