@@ -152,12 +152,16 @@ public class Board : MonoBehaviour
     #region Public methods
     public void SpawnPiece()
     {
+        int xTempPlayer = 0;
 
-        int xTempPlayer = Mathf.FloorToInt(player.transform.position.x);
+        if (player.transform.position.x >0)
+        xTempPlayer = Mathf.FloorToInt(player.transform.position.x);
+        else if (player.transform.position.x < 0)
+        xTempPlayer = Mathf.FloorToInt(player.transform.position.x);
 
         //we push the position a bit to the side to fit the tile
-        
-        if (xTempPlayer < -3) xTempPlayer = -3;
+
+        //if (xTempPlayer < -3) xTempPlayer = -3;
         else if (xTempPlayer >3) xTempPlayer = 3;
 
         spawnPosition = new Vector3Int(xTempPlayer, 8, 0);
@@ -165,6 +169,7 @@ public class Board : MonoBehaviour
 
         int random = Random.Range(0, this.tetraminoes.Length);
         TetraminoData data = this.tetraminoes[random];
+        //TetraminoData data = this.tetraminoes[0];
         this.activePiece.Initialize(this, spawnPosition, data);
 
         //for the long tile we have to push the position further
@@ -173,8 +178,8 @@ public class Board : MonoBehaviour
         {
             case Tetramino.I:
                 {
-                    if (xTempPlayer < -2) xTempPlayer = -2;
-                    else if (xTempPlayer > 2) xTempPlayer = 2;
+                    if (xTempPlayer > 2) xTempPlayer = 2;
+                    else if (xTempPlayer < -4) xTempPlayer = -4;
 
                     spawnPosition = new Vector3Int(xTempPlayer, 8, 0);
                     this.activePiece.Initialize(this, spawnPosition, data);

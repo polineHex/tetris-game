@@ -21,8 +21,8 @@ public class PlayerMovement : MonoBehaviour
     private AudioSource audioManager;
 
     private int jump;
-    private int maxJumps = 2;
-    private float jumpPower = 10f;
+    public int maxJumps = 2;
+    public float jumpPower = 10f;
 
 
     public Transform groundCheckPosition;
