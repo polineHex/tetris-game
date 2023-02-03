@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -10,6 +12,8 @@ public class Piece : MonoBehaviour
     public Vector3Int position { get; private set; }
     public Vector3Int[] cells { get; private set; }
 
+
+    private GameObject player;
     //we need to store rotation index
     public int rotationIndex { get; private set; }
 
@@ -24,7 +28,7 @@ public class Piece : MonoBehaviour
     private float stepTime;
     private float lockTime;
 
-
+    private float xTemp;
    
     private float timeToDrop;
     private bool blinkingPlayer;
@@ -48,8 +52,8 @@ public class Piece : MonoBehaviour
     //filling the cells with data from Data script dictionary - basically filling out the form for the picked piece    
     public void Initialize(Board board, Vector3Int position, TetraminoData data)
     {
-      this.board = board;
-        
+        this.board = board;
+        this.player = board.player;
     
         this.position = position;
         this.data = data;
@@ -65,7 +69,7 @@ public class Piece : MonoBehaviour
         blinkingPlayer= false;
         blinkingDrop = false;
 
-
+        xTemp = player.transform.position.x;
         this.gameObject.layer = LayerMask.NameToLayer("Ground");
 
 
@@ -108,15 +112,18 @@ public class Piece : MonoBehaviour
             //moving left/right - with player only
             if (followPlayer)
             {
-                
-                if (Input.GetKeyDown(KeyCode.A)) /// change the key event!!!!!!!!!!!!
+
+                int steps = PlayerMoved();
+
+                if (math.abs(steps) >= 1)
                 {
-                    Move(Vector2Int.left);
+                  xTemp = player.transform.position.x;
+                  if (steps < 0)  Move(Vector2Int.left);
+                  else  Move(Vector2Int.right);
+             
                 }
-                else if (Input.GetKeyDown(KeyCode.D))
-                {
-                    Move(Vector2Int.right);
-                }
+              
+
             }
             
             //moving down/drop down - we allow always?
@@ -177,8 +184,17 @@ public class Piece : MonoBehaviour
        
     }
 
-
-   
+    // checks if player moved a cell further, if yes, moves the tile in update too
+   private int PlayerMoved()
+    {
+        int delta = 0;
+        float temp = player.transform.position.x - xTemp;
+        
+        if (temp > 0) delta = Mathf.FloorToInt(player.transform.position.x - xTemp);
+        else if (temp < 0) delta = Mathf.CeilToInt(player.transform.position.x - xTemp);
+        
+        return delta;
+    }
     
     
     private void Step()

@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
 
     public Transform groundCheckPosition;
-
+    public float deltaMove;
 
     public LayerMask groundLayer;
     public LayerMask tileLayer;
@@ -79,6 +79,7 @@ public class PlayerMovement : MonoBehaviour
     {
 
         float h = Input.GetAxisRaw("Horizontal");  //raw- means whole number
+        float xTemp1 = transform.position.x;
 
         if (h > 0)
         {
@@ -117,6 +118,8 @@ public class PlayerMovement : MonoBehaviour
         }
        // print("speed = " + Mathf.Abs((int)myBody.velocity.x));
         anim.SetInteger("Speed", Mathf.Abs((int)myBody.velocity.x));
+
+        deltaMove = transform.position.x - xTemp1;
     }
 
     void ChangeDirection(int direction)
