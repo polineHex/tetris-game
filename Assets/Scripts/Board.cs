@@ -168,8 +168,8 @@ public class Board : MonoBehaviour
         
 
         int random = Random.Range(0, this.tetraminoes.Length);
-        TetraminoData data = this.tetraminoes[random];
-        //TetraminoData data = this.tetraminoes[0];
+        //TetraminoData data = this.tetraminoes[random];
+        TetraminoData data = this.tetraminoes[0];
         this.activePiece.Initialize(this, spawnPosition, data);
 
         //for the long tile we have to push the position further
@@ -299,6 +299,54 @@ public class Board : MonoBehaviour
 
         return true;
     }
+
+    public bool IsAbovePlayer()
+    {
+        Vector3Int position = activePiece.position;
+
+        int current = position.y;
+        int bottom = -this.boardSize.y / 2 - 1;
+
+        //this.board.Clear(this.trackingPiece); // to avoid breaking out of check cause we check on the same spot
+        
+
+        for (int row = current; row >= bottom; row--)
+        {
+            position.y = row;
+
+            if (CheckPlayer(activePiece, position))
+            {
+                
+                return true;
+            }
+           
+        }
+
+        return false;
+        //this.board.Set(this.trackingPiece);// return the tile back
+    }
+
+    private bool CheckPlayer(Piece piece, Vector3Int position)
+    {
+       
+        // The position is only valid if every cell is valid
+        for (int i = 0; i < piece.cells.Length; i++)
+        {
+            Vector3Int tilePosition = piece.cells[i] + position;
+
+            Vector2 positionBoundsPlayer = new Vector2(tilePosition.x - 0.5f, tilePosition.y - 1.0f);
+            Vector2 sizeBoundsPlayer = new Vector2(1.5f, 1f); //size is 2 but i want the player to fit on one tile
+            Rect boundsPlayer = new Rect(positionBoundsPlayer, sizeBoundsPlayer);
+            if (boundsPlayer.Contains((Vector2)player.transform.position))
+            {
+                return true;
+            }
+
+        } 
+
+        return false;
+    }
+
 
     /// <summary>
     /// Checks all rows (lines) and calls function to clear tit if yes

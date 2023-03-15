@@ -113,7 +113,7 @@ public class Piece : MonoBehaviour
             if (followPlayer)
             {
 
-                int steps = PlayerMoved();
+                /*int steps = PlayerMoved();
 
                 if (math.abs(steps) >= 1)
                 {
@@ -122,7 +122,15 @@ public class Piece : MonoBehaviour
                   else  Move(Vector2Int.right);
              
                 }
-              
+
+                */
+                while(!board.IsAbovePlayer())
+                {
+                    if (player.transform.position.x < this.position.x) Move(Vector2Int.left);
+                    else Move(Vector2Int.right);
+                }
+                
+                //print(board.IsAbovePlayer());
 
             }
             
